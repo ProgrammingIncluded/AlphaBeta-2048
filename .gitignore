@@ -1,0 +1,7 @@
+*.pyc
+*.exe
+*.out
+*.dll
+*.lib
+*.o
+.vscode
