@@ -7,15 +7,24 @@
  * Website: ProgrammingIncluded.github.io
 *******************************************/
 
-ABNode::ABNode(ABNode *parent, uint option, uint *grid) {
+ABNode::ABNode(ABNode *parent, uint option, uint *grid, bool isDirOnly) {
     this->parent = parent;
     this->option = option;
     this->grid = grid;
     this->total_games = 0;
     this->total_wins = 0;
+    this->alpha = LLONG_MIN;
+    this->beta = LLONG_MAX;
+    this->isTrav = false;
+    this->isDirOnly = isDirOnly;
 
     // Create children options, must call after grid is set
-    genOpt();
+    if(!isDirOnly)
+        genOpt();
+    else {
+        genDirOpt();
+    }
+        
 
     // Check to see if we should adjust value.
     if(VAL_H) {
@@ -45,15 +54,35 @@ ABNode* ABNode::createChild() {
 
     // Delete option
     children_options.erase(children_options.begin() + randNumber);
-
+    
     uint *optGrid = optToGrid(opt);
-    ABNode* resNode = new ABNode(this, opt, optGrid);
+    // Negate the direction only for next layer.
+    ABNode* resNode = new ABNode(this, opt, optGrid, !isDirOnly);
 
     children.push_back(resNode);
     return resNode;
 }
 
+void ABNode::genDirOpt() {
+    auto opt = avail_dir(this->grid);
+    // Get available directions.
+    for(auto i : opt) {
+        children_options.push_back((uint) DIR_TO_NUM[i.first]);
+    }
+
+    // Clean up.
+    for(auto i : opt)
+        delete i.second;
+}
+
 uint * ABNode::optToGrid(uint opt) {
+    // Options are simply direction encoded.
+    if(this->isDirOnly) {
+        uint *res = copy_grid(grid);
+        move_grid(res, DIR[opt]);
+        return res;
+    }
+
     uint v = (uint) (opt / (DIR_SIZE * GRID_SIZE));
     opt -= (v * DIR_SIZE * GRID_SIZE);
     uint loc = (uint) (opt / DIR_SIZE);

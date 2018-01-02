@@ -1,11 +1,12 @@
 #include "config.hpp"
 
-uint MONTE_CARLO = 0;
+const uint MAX_DEPTH = UINT32_MAX;
 
 const uint GRID_WIDTH = 4;
 const uint GRID_SIZE = GRID_WIDTH * GRID_WIDTH;
 
 uint WIN_REQ = 2048;
+// Must always be true for AB.
 bool VAL_H = true;
 double UCB_COEFF = 1.2;
 long long int LEAF_WEIGHT = 1000;

@@ -16,17 +16,22 @@
 
 class ABT {
     ABNode *root;
+    ABNode *cur_root;
 
     public:
         ABT(TFE &tfe);
         ~ABT();
 
-        char run(float sec, bool noNone = false);
+        char run();
 
-        ABNode* forwardPropagate(ABNode *root, std::vector<ABNode*> &trav, float timeLeft, bool noNone);
-        void backPropagate(std::vector<ABNode*> &trav, long long int win);
-        ABNode* getHighestUCB(std::vector<ABNode*> &children);
-    
+        // Go down one level
+        void boardUpdate();
+
     private:
         ABT(const ABT &other) = delete;
+
+        ABNode* getBestVal(std::vector<ABNode*> &children, bool isAlpha);
+
+        // Basic alpha-beta implementation
+        long long int alphaBeta(ABNode *node, uint depth, long long int A, long long int B);
 };

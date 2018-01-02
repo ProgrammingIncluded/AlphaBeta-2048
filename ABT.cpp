@@ -9,7 +9,8 @@
 
 ABT::ABT(TFE &tfe) {
     // Need to make a copy for grid.
-    root = new ABNode(nullptr, -1, copy_grid(tfe.getGrid()));
+    root = new ABNode(nullptr, -1, copy_grid(tfe.getGrid()), true);
+    cur_root = root;
 }
 
 ABT::~ABT() {
@@ -27,125 +28,83 @@ ABT::~ABT() {
     }
 }
 
-char ABT::run(float sec, bool noNone) {
-    time_t start = time(0);
-    float timeLeft = sec;
+char ABT::run() {
+    
+    alphaBeta(this->cur_root, MAX_DEPTH, LLONG_MIN, LLONG_MAX);
 
-    while(timeLeft > 0 || noNone) {
-        std::vector<ABNode*> trav;
-        ABNode *curNode = forwardPropagate(root, trav, timeLeft, noNone); 
-        
-        timeLeft = sec - (time(0) - start);
-        if(timeLeft <= 0 && !noNone)
-            break;
-
-        if(max_grid(curNode->grid) == WIN_REQ)
-            backPropagate(trav, 1);
-        else
-            backPropagate(trav, 0);
-
-        // Check if all children for root. If so, we can toggle noNone.
-        if(root->children_options.size() == 0)
-            noNone = false;
-
-        timeLeft = sec - (time(0) - start);
-    }
-
-    if(root->children_options.size() != 0) {
-        std::cout << "Not Enough Time." << std::endl;
-        return 'E';
-    }
-
-    ABNode *highest = getHighestUCB(root->children);
+    ABNode* highest = getBestVal(cur_root->children, true);
     uint opt = highest->option;
-    uint z = opt / (GRID_SIZE * DIR_SIZE);
-    opt -= z * GRID_SIZE * DIR_SIZE;
-    return DIR[opt % DIR_SIZE];
+    return DIR[opt];
 }
 
-ABNode* ABT::forwardPropagate(ABNode *root, std::vector<ABNode*> &trav, float timeLeft, bool noNone) {
-    ABNode *curNode = root;
-
-    time_t start = time(0);
-    float sec = timeLeft;
-    while(timeLeft > 0 || noNone) {
-        // Check if win node.
-        if(max_grid(curNode->grid) == WIN_REQ)
-            break;
+void ABT::boardUpdate() {
     
-        ABNode *res = curNode->createChild();
-
-        if(res == nullptr) {
-            // Check if Leaf Node
-            if(curNode->children.size() == 0 && curNode->children_options.size() == 0) {
-                // We can turn off our obligation to reach ending.
-                noNone = false;
-                break;
-            }
-
-            trav.push_back(curNode);
-            curNode = getHighestUCB(curNode->children);
-        }
-        else {
-            trav.push_back(res);
-            curNode = res;
-        }
-
-        // Calculate time.
-        time_t end = time(0);
-        timeLeft = sec - (end - start);
-    }
-
-    // Save last node.
-    trav.push_back(curNode);
-    return curNode;
 }
 
-void ABT::backPropagate(std::vector<ABNode*> &trav, long long int win) {
-    long long int accum = 0;
-
-    while(trav.size() != 0) {
-        ABNode *n = trav.back();
-        trav.pop_back();
-
-        n->total_games += 1;
-        n->total_wins += win;
-
-        accum += n->val;
-
-        // Propagate UCB
-        if(n->parent != nullptr) {
-            n->UCB = UCB_COEFF * sqrt(log(n->parent->total_games + 1) / n->total_games); 
-            
-            // Update heuristics
-            if(VAL_H) {
-                n->val = accum;
-                n->UCB += ((double) accum) / 1000000;
-    
-                // Update siblings
-                for(auto s : n->parent->children)
-                    s->UCB = (((double) s->val) / 1000000) + UCB_COEFF * sqrt(log(s->parent->total_games + 1) / s->total_games);
-            }
-            else {
-                n->UCB += (n->total_wins/n->total_games);
-
-                for(auto s : n->parent->children)
-                    s->UCB = (s->total_wins/s->total_games) + UCB_COEFF * sqrt(log(s->parent->total_games + 1) / s->total_games);
-            }
-        }
-    }
-}
-
-ABNode* ABT::getHighestUCB(std::vector<ABNode*> &children) {
+ABNode* ABT::getBestVal(std::vector<ABNode*> &children, bool isAlpha) {
     ABNode *res = nullptr;
-    double selVal = LLONG_MIN;
+    long long int selVal = LLONG_MIN;
 
     for(auto c : children) {
-        if(selVal <= c->UCB) {
+        if(isAlpha && selVal <= c->alpha) {
             res = c;
-            selVal = c->UCB;
+            selVal = c->alpha;
+        }
+        else if(!isAlpha && selVal >= c->beta) {
+            res = c;
+            selVal = c->beta;
         }
     }
 
     return res;
+}
+
+long long int ABT::alphaBeta(ABNode *node, uint depth, long long int A, long long int B) {
+    if(depth == 0 || node->children.size() == 0)
+        return node->val;
+
+    if(node->isDirOnly) {
+        long long int v = LLONG_MIN;
+        for(;;) {
+            ABNode *cur = node->createChild();
+            if(cur == nullptr)
+                break;
+            
+            if(cur->isTrav) {
+                A = cur->alpha;
+                continue;
+            }
+
+            v = std::max(v, alphaBeta(cur, depth - 1, A, B));
+            A = std::max(v, A);
+            cur->alpha = A;
+            cur->isTrav |= true;
+
+            if(B <= A)
+                break;
+        }
+        return v;
+    }
+
+    long long int v = LLONG_MAX;
+    for(;;) {
+        ABNode *cur = node->createChild();
+        if(cur == nullptr)
+            break;
+        
+        if(cur->isTrav) {
+            B = cur->beta;
+            continue;
+        }
+
+        v = std::min(v, alphaBeta(cur, depth - 1, A, B));
+        B = std::min(v, B);
+        cur->beta = B;
+        cur->isTrav |= true;
+
+        if(B <= A)
+            break;
+        
+    }
+    return v;
 }

@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <random>
+#include <algorithm>
 
 #include "types_macros.hpp"
 #include "grid_util.hpp"
@@ -21,12 +22,15 @@ class ABNode {
 
         uint total_games;
         uint total_wins;
-        double UCB;
         uint *grid;
         long long int val;
+        long long int alpha;
+        long long int beta;
+        bool isTrav;
+        bool isDirOnly;
 
         // NOTE: Grid is not copied.
-        ABNode(ABNode *parent, uint option, uint *grid);
+        ABNode(ABNode *parent, uint option, uint *grid, bool isDirOnly = false);
         
         // Grid guranteed to be deleted.
         ~ABNode();
@@ -41,6 +45,11 @@ class ABNode {
          * Encode future grid orientations by unique id.
          */
         void genOpt();
+
+        /**
+         * Encode next layer as direction only.
+         */
+        void genDirOpt();
 
         /**
          * Decode unique option id to a grid orientation.

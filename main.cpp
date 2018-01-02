@@ -33,7 +33,7 @@ int main() {
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
         ABT abt(tfe);
         std::cout << "*********************" << std::endl;
-        char act = abt.run(MONTE_CARLO, true);
+        char act = abt.run();
         std::cout << "AI SELECT ACTION: " << act << std::endl;
         std::cout << "*********************" << std::endl;
         std::cout << "BEFORE: " << act << std::endl;
