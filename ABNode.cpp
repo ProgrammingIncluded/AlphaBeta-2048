@@ -1,13 +1,13 @@
-#include "MCTNode.hpp"
+#include "ABNode.hpp"
 
 /******************************************
- * Project: MCT-TFE
- * File: MCTNode.cpp
+ * Project: ABT-TFE
+ * File: ABNode.cpp
  * By: ProgrammingIncluded
  * Website: ProgrammingIncluded.github.io
 *******************************************/
 
-MCTNode::MCTNode(MCTNode *parent, uint option, uint *grid) {
+ABNode::ABNode(ABNode *parent, uint option, uint *grid) {
     this->parent = parent;
     this->option = option;
     this->grid = grid;
@@ -28,11 +28,11 @@ MCTNode::MCTNode(MCTNode *parent, uint option, uint *grid) {
     }
 }
 
-MCTNode::~MCTNode() {
+ABNode::~ABNode() {
     delete[] grid;
 }
 
-MCTNode* MCTNode::createChild() {
+ABNode* ABNode::createChild() {
     if(children_options.size() == 0)
         return nullptr;
     
@@ -47,13 +47,13 @@ MCTNode* MCTNode::createChild() {
     children_options.erase(children_options.begin() + randNumber);
 
     uint *optGrid = optToGrid(opt);
-    MCTNode* resNode = new MCTNode(this, opt, optGrid);
+    ABNode* resNode = new ABNode(this, opt, optGrid);
 
     children.push_back(resNode);
     return resNode;
 }
 
-uint * MCTNode::optToGrid(uint opt) {
+uint * ABNode::optToGrid(uint opt) {
     uint v = (uint) (opt / (DIR_SIZE * GRID_SIZE));
     opt -= (v * DIR_SIZE * GRID_SIZE);
     uint loc = (uint) (opt / DIR_SIZE);
@@ -70,7 +70,7 @@ uint * MCTNode::optToGrid(uint opt) {
     return res;
 }
 
-void MCTNode::genOpt() {
+void ABNode::genOpt() {
     std::vector<uint> res;
     // Generate all available options.
     // Assumes grid is available.
@@ -92,7 +92,7 @@ void MCTNode::genOpt() {
 }
 
 
-long long int MCTNode::valueFromGrid(uint *A) {
+long long int ABNode::valueFromGrid(uint *A) {
     long long int res = 0;
     uint *fil = copy_grid(A);
 

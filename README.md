@@ -20,7 +20,7 @@ TBD
 | File Name | Description |
 | ---------------- |:-------------:|
 | main.cpp | Main file to start an instance of AB and 2048. |
-| AB.cpp | File housing Monte Carlo Tree Search. |
+| AB.cpp | File housing Alpha-Beta Search. |
 | ABNode.cpp | File to hold node implementation for MCTree. |
 | TFE.cpp | File to hold 2048 program. |
 | grid_util.cpp | File to hold grid manipulation helper functions. |

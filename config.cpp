@@ -1,6 +1,6 @@
 #include "config.hpp"
 
-uint MONTE_CARLO = 1;
+uint MONTE_CARLO = 0;
 
 const uint GRID_WIDTH = 4;
 const uint GRID_SIZE = GRID_WIDTH * GRID_WIDTH;

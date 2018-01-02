@@ -1,6 +1,6 @@
 /******************************************
  * Project: MCT-TFE
- * File: MCTNode.hpp
+ * File: ABNode.hpp
  * By: ProgrammingIncluded
  * Website: ProgrammingIncluded.github.io
 *******************************************/
@@ -11,12 +11,12 @@
 #include "types_macros.hpp"
 #include "grid_util.hpp"
 
-class MCTNode {
+class ABNode {
     public:
         uint option;
-        MCTNode *parent;
+        ABNode *parent;
 
-        std::vector<MCTNode *> children;
+        std::vector<ABNode *> children;
         std::vector<uint> children_options;
 
         uint total_games;
@@ -26,15 +26,15 @@ class MCTNode {
         long long int val;
 
         // NOTE: Grid is not copied.
-        MCTNode(MCTNode *parent, uint option, uint *grid);
+        ABNode(ABNode *parent, uint option, uint *grid);
         
         // Grid guranteed to be deleted.
-        ~MCTNode();
+        ~ABNode();
 
         /**
          * Create a child node.
          */
-        MCTNode* createChild();
+        ABNode* createChild();
 
     private:
         /**
@@ -53,5 +53,5 @@ class MCTNode {
         long long int valueFromGrid(uint *A);
 
         // Make copy private so no one makes instance.
-        MCTNode(const MCTNode &other) = delete;
+        ABNode(const ABNode &other) = delete;
 };

@@ -1,5 +1,5 @@
 /******************************************
- * Project: MCT-TFE
+ * Project: ABT-TFE
  * File: main.cpp
  * By: ProgrammingIncluded
  * Website: ProgrammingIncluded.github.io
@@ -13,7 +13,7 @@
 #include <chrono>
 
 #include "TFE.hpp"
-#include "MCT.hpp"
+#include "ABT.hpp"
 #include "grid_util.hpp"
 
 int main() {
@@ -31,9 +31,9 @@ int main() {
     
     while(!tfe.isWin() && !tfe.isLose()) {
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-        MCT mct(tfe);
+        ABT abt(tfe);
         std::cout << "*********************" << std::endl;
-        char act = mct.run(MONTE_CARLO, true);
+        char act = abt.run(MONTE_CARLO, true);
         std::cout << "AI SELECT ACTION: " << act << std::endl;
         std::cout << "*********************" << std::endl;
         std::cout << "BEFORE: " << act << std::endl;

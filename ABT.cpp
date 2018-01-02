@@ -1,22 +1,22 @@
-#include "MCT.hpp"
+#include "ABT.hpp"
 
 /******************************************
- * Project: MCT-TFE
- * File: MCT.cpp
+ * Project: ABT-TFE
+ * File: ABT.cpp
  * By: ProgrammingIncluded
  * Website: ProgrammingIncluded.github.io
 *******************************************/
 
-MCT::MCT(TFE &tfe) {
+ABT::ABT(TFE &tfe) {
     // Need to make a copy for grid.
-    root = new MCTNode(nullptr, -1, copy_grid(tfe.getGrid()));
+    root = new ABNode(nullptr, -1, copy_grid(tfe.getGrid()));
 }
 
-MCT::~MCT() {
+ABT::~ABT() {
     // Depth first search delete.
-    std::vector<MCTNode*> stack;
+    std::vector<ABNode*> stack;
     while(!stack.empty()) {
-        MCTNode *cur = stack.back();
+        ABNode *cur = stack.back();
         stack.pop_back();
         // Add the children
         for(auto c : cur->children)
@@ -27,13 +27,13 @@ MCT::~MCT() {
     }
 }
 
-char MCT::run(float sec, bool noNone) {
+char ABT::run(float sec, bool noNone) {
     time_t start = time(0);
     float timeLeft = sec;
 
     while(timeLeft > 0 || noNone) {
-        std::vector<MCTNode*> trav;
-        MCTNode *curNode = forwardPropagate(root, trav, timeLeft, noNone); 
+        std::vector<ABNode*> trav;
+        ABNode *curNode = forwardPropagate(root, trav, timeLeft, noNone); 
         
         timeLeft = sec - (time(0) - start);
         if(timeLeft <= 0 && !noNone)
@@ -56,15 +56,15 @@ char MCT::run(float sec, bool noNone) {
         return 'E';
     }
 
-    MCTNode *highest = getHighestUCB(root->children);
+    ABNode *highest = getHighestUCB(root->children);
     uint opt = highest->option;
     uint z = opt / (GRID_SIZE * DIR_SIZE);
     opt -= z * GRID_SIZE * DIR_SIZE;
     return DIR[opt % DIR_SIZE];
 }
 
-MCTNode* MCT::forwardPropagate(MCTNode *root, std::vector<MCTNode*> &trav, float timeLeft, bool noNone) {
-    MCTNode *curNode = root;
+ABNode* ABT::forwardPropagate(ABNode *root, std::vector<ABNode*> &trav, float timeLeft, bool noNone) {
+    ABNode *curNode = root;
 
     time_t start = time(0);
     float sec = timeLeft;
@@ -73,7 +73,7 @@ MCTNode* MCT::forwardPropagate(MCTNode *root, std::vector<MCTNode*> &trav, float
         if(max_grid(curNode->grid) == WIN_REQ)
             break;
     
-        MCTNode *res = curNode->createChild();
+        ABNode *res = curNode->createChild();
 
         if(res == nullptr) {
             // Check if Leaf Node
@@ -101,11 +101,11 @@ MCTNode* MCT::forwardPropagate(MCTNode *root, std::vector<MCTNode*> &trav, float
     return curNode;
 }
 
-void MCT::backPropagate(std::vector<MCTNode*> &trav, long long int win) {
+void ABT::backPropagate(std::vector<ABNode*> &trav, long long int win) {
     long long int accum = 0;
 
     while(trav.size() != 0) {
-        MCTNode *n = trav.back();
+        ABNode *n = trav.back();
         trav.pop_back();
 
         n->total_games += 1;
@@ -136,8 +136,8 @@ void MCT::backPropagate(std::vector<MCTNode*> &trav, long long int win) {
     }
 }
 
-MCTNode* MCT::getHighestUCB(std::vector<MCTNode*> &children) {
-    MCTNode *res = nullptr;
+ABNode* ABT::getHighestUCB(std::vector<ABNode*> &children) {
+    ABNode *res = nullptr;
     double selVal = LLONG_MIN;
 
     for(auto c : children) {
