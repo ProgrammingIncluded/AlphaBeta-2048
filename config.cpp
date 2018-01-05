@@ -1,6 +1,6 @@
 #include "config.hpp"
 
-const uint MAX_DEPTH = UINT32_MAX;
+const uint MAX_DEPTH = 2;
 
 const uint GRID_WIDTH = 4;
 const uint GRID_SIZE = GRID_WIDTH * GRID_WIDTH;

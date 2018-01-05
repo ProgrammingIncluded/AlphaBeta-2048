@@ -8,6 +8,7 @@
 #include <vector>
 #include <random>
 #include <algorithm>
+#include <climits>
 
 #include "types_macros.hpp"
 #include "grid_util.hpp"

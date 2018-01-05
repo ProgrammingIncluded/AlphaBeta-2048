@@ -18,9 +18,7 @@
 
 int main() {
     // Init seed with nanosecond time.
-    struct timespec ts;
-    clock_gettime(CLOCK_MONOTONIC, &ts);
-    std::srand((time_t)ts.tv_nsec);
+    std::srand(time(NULL));
 
     TFE tfe;
     tfe.putNew();

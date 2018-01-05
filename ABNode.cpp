@@ -72,7 +72,7 @@ void ABNode::genDirOpt() {
 
     // Clean up.
     for(auto i : opt)
-        delete i.second;
+        delete[] i.second;
 }
 
 uint * ABNode::optToGrid(uint opt) {

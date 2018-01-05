@@ -29,7 +29,6 @@ ABT::~ABT() {
 }
 
 char ABT::run() {
-    
     alphaBeta(this->cur_root, MAX_DEPTH, LLONG_MIN, LLONG_MAX);
 
     ABNode* highest = getBestVal(cur_root->children, true);
@@ -60,7 +59,7 @@ ABNode* ABT::getBestVal(std::vector<ABNode*> &children, bool isAlpha) {
 }
 
 long long int ABT::alphaBeta(ABNode *node, uint depth, long long int A, long long int B) {
-    if(depth == 0 || node->children.size() == 0)
+    if(depth == 0 || node->children_options.size() == 0)
         return node->val;
 
     if(node->isDirOnly) {
