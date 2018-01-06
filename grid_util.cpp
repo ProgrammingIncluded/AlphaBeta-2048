@@ -221,6 +221,14 @@ long long int* diff_grid(uint *A) {
     return res;
 }
 
+uint one_change_grid(uint *A, uint *B) {
+    for(uint x = 0; x < GRID_SIZE; ++x) {
+        if(A[x] != B[x])
+            return x;
+    }
+    return 0;
+}
+
 void clip(long long int* A, long long int min, long long int max, uint size) {
     for(uint x = 0; x < size; ++x) {
         if(A[x] < min)

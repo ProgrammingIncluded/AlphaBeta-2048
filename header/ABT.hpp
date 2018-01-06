@@ -25,7 +25,7 @@ class ABT {
         char run();
 
         // Go down one level
-        void boardUpdate();
+        void boardUpdate(char dir, uint *gameGrid);
 
     private:
         ABT(const ABT &other) = delete;

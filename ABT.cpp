@@ -30,14 +30,52 @@ ABT::~ABT() {
 
 char ABT::run() {
     alphaBeta(this->cur_root, MAX_DEPTH, LLONG_MIN, LLONG_MAX);
+    std::cout << cur_root << std::endl;
 
     ABNode* highest = getBestVal(cur_root->children, true);
     uint opt = highest->option;
     return DIR[opt];
 }
 
-void ABT::boardUpdate() {
+void ABT::boardUpdate(char dir, uint *gameGrid) {
+    // Get the direction of the move. Go down that path.
+    ABNode *trav = cur_root;
+    // Go down the direction
+    uint dirNum = DIR_TO_NUM[dir];
+    for(auto c : trav->children) {
+        if(c->option == dirNum) {
+            trav = c;
+            break;
+        }
+    }
     
+    uint pos = one_change_grid(trav->grid, gameGrid);
+    uint val = gameGrid[pos];
+
+    // Find the option encoding.
+    uint valBool = 0;
+    if(val == 4)
+        valBool = 1;
+
+    uint opt = pos + GRID_SIZE * valBool;
+
+    ABNode* n = trav->createChild(opt);
+    // Node does not exist, was created 
+    if(n != nullptr) {
+        cur_root = n;
+        return;
+    }
+
+    // Node does exist, find it in the board.
+    // Find the node.
+    for(auto c : trav->children) {
+        std::cout << c->option << " "; 
+        if(c->option == opt) {
+            cur_root = c;
+            break;
+        }
+    }
+
 }
 
 ABNode* ABT::getBestVal(std::vector<ABNode*> &children, bool isAlpha) {

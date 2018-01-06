@@ -63,6 +63,22 @@ ABNode* ABNode::createChild() {
     return resNode;
 }
 
+ABNode* ABNode::createChild(uint opt){
+    // Find the value location.
+    auto re = std::find(children_options.begin(), children_options.end(), opt);
+    if(re == children_options.end())
+        return nullptr;
+
+    children_options.erase(re);
+    
+    uint *optGrid = optToGrid(opt);
+    // Negate the direction only for next layer.
+    ABNode* resNode = new ABNode(this, opt, optGrid, !isDirOnly);
+
+    children.push_back(resNode);
+    return resNode;
+}
+
 void ABNode::genDirOpt() {
     auto opt = avail_dir(this->grid);
     // Get available directions.
@@ -83,39 +99,27 @@ uint * ABNode::optToGrid(uint opt) {
         return res;
     }
 
-    uint v = (uint) (opt / (DIR_SIZE * GRID_SIZE));
-    opt -= (v * DIR_SIZE * GRID_SIZE);
-    uint loc = (uint) (opt / DIR_SIZE);
-    char d = DIR[opt % DIR_SIZE];
+    uint v = (uint) (opt / GRID_SIZE);
+    uint loc = opt % GRID_SIZE;
 
     uint *res = copy_grid(grid);
-    move_grid(res, d);
 
     if(v == 0)
-        AC(res, (uint) (loc % DIR_SIZE), (uint) (loc / DIR_SIZE)) = 2;
+        AC(res, (uint) (loc % GRID_WIDTH), (uint) (loc / GRID_WIDTH)) = 2;
     else
-        AC(res, (uint) (loc % DIR_SIZE), (uint) (loc / DIR_SIZE)) = 4;
+        AC(res, (uint) (loc % GRID_WIDTH), (uint) (loc / GRID_WIDTH)) = 4;
     
     return res;
 }
 
 void ABNode::genOpt() {
     std::vector<uint> res;
-    // Generate all available options.
-    // Assumes grid is available.
-    auto avail = avail_dir(grid);
 
-    for(uint x = 0; x < avail.size(); ++x){
-        std::vector<uint> where = get_cells_where(avail[x].second, 0);
-        for(uint i = 0; i < where.size(); ++i) {
-            res.push_back(DIR_TO_NUM[avail[x].first] + DIR_SIZE * (where[i]));
-            res.push_back(DIR_TO_NUM[avail[x].first] + DIR_SIZE * (where[i] + GRID_SIZE));
-        }
+    std::vector<uint> where = get_cells_where(this->grid, 0);
+    for(uint i = 0; i < where.size(); ++i) {
+        res.push_back(where[i]);
+        res.push_back(where[i] + GRID_SIZE);
     }
-    
-    // Delete the generated avail
-    for(auto i : avail)
-        delete[] i.second;
 
     children_options = res;
 }

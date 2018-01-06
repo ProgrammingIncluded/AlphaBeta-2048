@@ -55,6 +55,9 @@ void rotate_grid_90(uint *A);
 // Returns a new array of dim(GRID_WIDTH - 1, GRID_WIDTH)
 long long int* diff_grid(uint *A);
 
+// Find the change in grid. Assumes only one spot change.
+uint one_change_grid(uint *A, uint *B);
+
 /* Matrix Specific Functions */
 // These functions require specific size of grid since not assumed.
 

@@ -41,6 +41,11 @@ class ABNode {
          */
         ABNode* createChild();
 
+        /**
+         * Create a child node with option.
+         */
+        ABNode* createChild(uint opt);
+
     private:
         /**
          * Encode future grid orientations by unique id.
