@@ -14,8 +14,13 @@ ABT::ABT(TFE &tfe) {
 }
 
 ABT::~ABT() {
+    deleteTree(root);
+}
+
+void ABT::deleteTree(ABNode *node) {
     // Depth first search delete.
     std::vector<ABNode*> stack;
+    stack.push_back(node);
     while(!stack.empty()) {
         ABNode *cur = stack.back();
         stack.pop_back();
@@ -30,7 +35,6 @@ ABT::~ABT() {
 
 char ABT::run() {
     alphaBeta(this->cur_root, MAX_DEPTH, LLONG_MIN, LLONG_MAX);
-    std::cout << cur_root << std::endl;
 
     ABNode* highest = getBestVal(cur_root->children, true);
     uint opt = highest->option;
@@ -49,6 +53,16 @@ void ABT::boardUpdate(char dir, uint *gameGrid) {
         }
     }
     
+    // Delete other directions
+    for(auto c : root->children) {
+        if(c == trav)
+            continue;
+        this->deleteTree(c);
+    }
+    // Update root
+    delete root;
+    root = trav;
+
     uint pos = one_change_grid(trav->grid, gameGrid);
     uint val = gameGrid[pos];
 
@@ -63,18 +77,27 @@ void ABT::boardUpdate(char dir, uint *gameGrid) {
     // Node does not exist, was created 
     if(n != nullptr) {
         cur_root = n;
-        return;
     }
-
-    // Node does exist, find it in the board.
-    // Find the node.
-    for(auto c : trav->children) {
-        std::cout << c->option << " "; 
-        if(c->option == opt) {
-            cur_root = c;
-            break;
+    else {
+        // Node does exist, find it in the board.
+        // Find the node.
+        for(auto c : trav->children) {
+            if(c->option == opt) {
+                cur_root = c;
+                break;
+            }
         }
     }
+    
+    // Clear up all the other branches.
+    for(auto c : root->children) {
+        if(c == cur_root)
+            continue;
+        this->deleteTree(c);
+    }
+
+    delete root;
+    root = cur_root;
 
 }
 
@@ -99,7 +122,7 @@ ABNode* ABT::getBestVal(std::vector<ABNode*> &children, bool isAlpha) {
 long long int ABT::alphaBeta(ABNode *node, uint depth, long long int A, long long int B) {
     if(depth == 0 || node->children_options.size() == 0)
         return node->val;
-
+    
     if(node->isDirOnly) {
         long long int v = LLONG_MIN;
         for(;;) {
@@ -108,6 +131,7 @@ long long int ABT::alphaBeta(ABNode *node, uint depth, long long int A, long lon
                 break;
             
             if(cur->isTrav) {
+                std::cout << "SKIPPING" << std::endl;
                 A = cur->alpha;
                 continue;
             }
@@ -130,6 +154,7 @@ long long int ABT::alphaBeta(ABNode *node, uint depth, long long int A, long lon
             break;
         
         if(cur->isTrav) {
+            std::cout << "SKIPPING" << std::endl;
             B = cur->beta;
             continue;
         }

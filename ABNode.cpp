@@ -105,9 +105,9 @@ uint * ABNode::optToGrid(uint opt) {
     uint *res = copy_grid(grid);
 
     if(v == 0)
-        AC(res, (uint) (loc % GRID_WIDTH), (uint) (loc / GRID_WIDTH)) = 2;
+        res[loc] = 2;
     else
-        AC(res, (uint) (loc % GRID_WIDTH), (uint) (loc / GRID_WIDTH)) = 4;
+        res[loc] = 4;
     
     return res;
 }
